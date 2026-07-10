@@ -1,0 +1,59 @@
+name: Check Duplicate Files
+
+# Ensures the two duplicate file pairs remain in sync as required by ADR 002.
+# Opt-out: include [skip-drift] anywhere in the latest commit message.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-duplicates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check for skip-drift marker
+        id: skip-check
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          if echo "$COMMIT_MSG" | grep -q '\[skip-drift\]'; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "⏭️  [skip-drift] marker found — skipping duplicate file check."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Diff LANGUAGE.md
+        if: steps.skip-check.outputs.skip != 'true'
+        run: |
+          if ! diff -q LANGUAGE.md skills/codify/references/LANGUAGE.md; then
+            echo ""
+            echo "❌ LANGUAGE.md differs from skills/codify/references/LANGUAGE.md"
+            echo "   These files must be identical per ADR 002:"
+            echo "   docs/adr/002-duplicate-files-in-skill-bundle.md"
+            echo ""
+            echo "   To intentionally bypass this check, include [skip-drift]"
+            echo "   anywhere in your commit message."
+            exit 1
+          fi
+          echo "✅ LANGUAGE.md in sync."
+
+      - name: Diff example.md
+        if: steps.skip-check.outputs.skip != 'true'
+        run: |
+          if ! diff -q example.md skills/codify/assets/examples/example.md; then
+            echo ""
+            echo "❌ example.md differs from skills/codify/assets/examples/example.md"
+            echo "   These files must be identical per ADR 002:"
+            echo "   docs/adr/002-duplicate-files-in-skill-bundle.md"
+            echo ""
+            echo "   To intentionally bypass this check, include [skip-drift]"
+            echo "   anywhere in your commit message."
+            exit 1
+          fi
+          echo "✅ example.md in sync."
