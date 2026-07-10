@@ -16,21 +16,22 @@ Codify is a **syntax and convention system**, not a file format. The syntax work
 
 The skill has three operational modes:
 
-| Mode | Function |
-|------|----------|
-| **write** | Author structured prompts using codify syntax; output as text inline |
-| **review** | Audit codify source for spec compliance, clarity, and LLM-friendliness |
-| **convert** | Translate between natural language and codify syntax — no file required |
+modes: yaml =
+  write: Author structured prompts using codify syntax; output as text inline
+  review: Audit codify source for spec compliance, clarity, and LLM-friendliness
+  convert: Translate between natural language and codify syntax — no file required
 
 ---
 
 ## When to use
 
-- The user says: "write a codify prompt", "help me structure this task in codify", "create a codify workflow"
-- The user says: "review this codify code", "check this codify file", "is this valid codify?"
-- The user says: "convert this prompt to codify", "explain this codify file in plain English", "translate this codify to natural language"
-- The user shares a task description and wants it structured as codify constructs
-- The user shares a codify source file and wants it audited for correctness, ambiguities, or LLM-friendliness
+when_to_use = [
+  "user says: write a codify prompt, help me structure this task in codify, create a codify workflow",
+  "user says: review this codify code, check this codify file, is this valid codify?",
+  "user says: convert this prompt to codify, explain this codify file in plain English, translate this codify to natural language",
+  "user shares a task description and wants it structured as codify constructs",
+  "user shares a codify source file and wants it audited for correctness, ambiguities, or LLM-friendliness"
+]
 
 ---
 
@@ -45,13 +46,14 @@ Before using this skill, read these resource files bundled inside the skill dire
 
 ### Key facts about codify
 
-- **No compiler, no parser, no linter** — codify is a set of conventions, not enforced rules. Output is sent as one prompt to an LLM.
-- **Everything is a prompt** — any text that isn't a comment, declaration, control flow construct, function, or embedded format is natural language sent to the LLM.
-- **Fileless by default** — codify syntax can be used directly in any prompt without creating any file.
-- **Comments**: `//` and `/* */` are read by the LLM as context, guidance, and meta-instructions.
-- **No file extension** — codify syntax works in any text file. No special extension is needed.
-- **No strict types** — type annotations like `: adult` or `: yaml` are semantic labels for the LLM, not enforced by any runtime.
-- **Embedded formats** (YAML, TOML, JSON, XML, Markdown) are passed as-is to the LLM — the format annotation tells the LLM how to interpret the block.
+key_facts: yaml =
+  no_compiler: codify is a set of conventions, not enforced rules. Output is sent as one prompt to an LLM.
+  everything_is_prompt: any text that is not a comment, declaration, control flow construct, function, or embedded format is natural language sent to the LLM.
+  fileless_by_default: codify syntax can be used directly in any prompt without creating any file.
+  comments: "// and /* */ are read by the LLM as context, guidance, and meta-instructions."
+  no_file_extension: codify syntax works in any text file. No special extension is needed.
+  no_strict_types: "type annotations like :adult or :yaml are semantic labels for the LLM, not enforced by any runtime."
+  embedded_formats: "YAML, TOML, JSON, XML, Markdown are passed as-is to the LLM — the format annotation tells the LLM how to interpret the block."
 
 ---
 
@@ -63,23 +65,31 @@ Use this when the user asks to create structured prompts using codify convention
 
 #### Step 1: Identify the task scope
 
-Determine what the codify content should accomplish. Ask the user if unclear:
-- What is the single goal or question the LLM should answer?
-- What data/context does the LLM need? (variables, embedded configs, lists)
-- Should the output be structured? (control flow branching, loops over items)
-- Are there behavioural instructions for the LLM? (use comments for these)
+Determine what the codify content should accomplish. Ask the user if unclear.
+
+scope_questions = [
+  "What is the single goal or question the LLM should answer?",
+  "What data/context does the LLM need? (variables, embedded configs, lists)",
+  "Should the output be structured? (control flow branching, loops over items)",
+  "Are there behavioural instructions for the LLM? (use comments for these)"
+]
+
+for question in scope_questions:
+    if answer is unclear: ask the user
 
 #### Step 2: Structure the content
 
-Organise the content top-to-bottom in this conventional order:
+Organise the content top-to-bottom in this conventional order.
 
-1. **Declarations** — Variables, constants, data using `=`, `is`, or `as` style
-2. **Embedded data** — Structured config in YAML, TOML, JSON, XML, or Markdown
-3. **Functions** — Reusable prompt templates with `fn` or `def`
-4. **Prompts** — The natural-language instructions/questions sent to the LLM
-5. **Control flow / loops** — Branching and iteration over declared data
+structure_order = [
+  "Declarations — Variables, constants, data using =, is, or as style",
+  "Embedded data — Structured config in YAML, TOML, JSON, XML, or Markdown",
+  "Functions — Reusable prompt templates with fn or def",
+  "Prompts — The natural-language instructions/questions sent to the LLM",
+  "Control flow / loops — Branching and iteration over declared data"
+]
 
-This order is a convention, not a rule — any construct can appear anywhere.
+// This order is a convention, not a rule — any construct can appear anywhere.
 
 #### Step 3: Use correct construct syntax
 
@@ -190,10 +200,15 @@ Prompts can reference variables declared earlier. The LLM resolves them in conte
 
 #### Step 5: Verify the content
 
-- Read the content back and confirm every construct follows the syntax above
-- Check that comments use `//` or `/* */` syntax consistently
-- Check that embedded format annotations match the format of the content (e.g., `: yaml =` should precede YAML, not JSON)
-- Check that control flow bodies are consistently indented (spaces or tabs, but not mixed)
+verification_checks = [
+  "read the content back and confirm every construct follows the syntax above",
+  "check that comments use // or /* */ syntax consistently",
+  "check that embedded format annotations match the format of the content (e.g., : yaml = should precede YAML, not JSON)",
+  "check that control flow bodies are consistently indented (spaces or tabs, but not mixed)"
+]
+
+for check in verification_checks:
+    perform check
 
 ---
 
@@ -209,35 +224,44 @@ Read the full content.
 
 Inspect each construct category:
 
-| Construct | What to check |
-|-----------|---------------|
-| **Declarations** | `=`, `is`, `as` — are they on their own line? Is the variable name a single word (no spaces)? |
-| **Type annotations** | Does the type label follow the `name: label =` pattern? For embedded formats, does the label match the format (`: yaml`, `: json`, etc.)? |
-| **Control flow (block)** | Does the condition end with a colon? Is the body consistently indented? Are `else if` / `else` at the same indent level as `if`? |
-| **Control flow (inline)** | Are conditions followed by `?` and branches separated by `;`? Can the LLM parse the chain? |
-| **Loops** | Does `for ... in ...:` have a colon? Is the body indented? Is the iterator a range, a list variable, or a natural-language description? |
-| **Functions** | Does `fn name(args) {` have a matching `}`? Is the body descriptive natural language (not implementation code)? |
-| **Embedded formats** | Does the content following the annotation match the format? (e.g., YAML under `: yaml =`, JSON under `: json =`) |
-| **Comments** | Are `//` only used BOL or after whitespace (so `https://` is not mistaken for a comment)? |
+construct_checks: yaml =
+  declarations: "=, is, as — are they on their own line? Is the variable name a single word (no spaces)?"
+  type_annotations: "Does the type label follow the name: label = pattern? For embedded formats, does the label match the format (: yaml, : json, etc.)?"
+  control_flow_block: "Does the condition end with a colon? Is the body consistently indented? Are else if / else at the same indent level as if?"
+  control_flow_inline: "Are conditions followed by ? and branches separated by ;? Can the LLM parse the chain?"
+  loops: "Does for ... in ...: have a colon? Is the body indented? Is the iterator a range, a list variable, or a natural-language description?"
+  functions: "Does fn name(args) { have a matching }? Is the body descriptive natural language (not implementation code)?"
+  embedded_formats: "Does the content following the annotation match the format? (e.g., YAML under : yaml =, JSON under : json =)"
+  comments: "Are // only used BOL or after whitespace (so https:// is not mistaken for a comment)?"
 
 #### Step 3: Flag ambiguities
 
 Look for constructs that could confuse an LLM:
 
-- **Unclear scope**: Does a variable change meaning mid-file? (codify allows reassignment, but it can confuse the LLM.)
-- **Ambiguous control flow**: In inline style, are conditions and branches clearly delimited so the LLM can parse them?
-- **Format mismatch**: Is there YAML-like content labeled `: json` or vice versa?
-- **Missing annotations**: Is there embedded data without a format annotation, forcing the LLM to guess?
-- **Overly long prompts**: Are there paragraphs of unstructured text that should be broken into variables + control flow?
-- **Mixed indentation**: Are tabs and spaces mixed in indented blocks?
+ambiguities_to_flag = [
+  "Unclear scope: Does a variable change meaning mid-file? (codify allows reassignment, but it can confuse the LLM.)",
+  "Ambiguous control flow: In inline style, are conditions and branches clearly delimited so the LLM can parse them?",
+  "Format mismatch: Is there YAML-like content labeled : json or vice versa?",
+  "Missing annotations: Is there embedded data without a format annotation, forcing the LLM to guess?",
+  "Overly long prompts: Are there paragraphs of unstructured text that should be broken into variables + control flow?",
+  "Mixed indentation: Are tabs and spaces mixed in indented blocks?"
+]
+
+for ambiguity in ambiguities_to_flag:
+    look for ambiguity in source
 
 #### Step 4: Assess LLM-friendliness
 
 Rate the content on these criteria:
-- **Clarity**: Would an LLM immediately understand the task from the prompts?
-- **Structure**: Are related data grouped via embedded formats? Are branching paths explicit?
-- **Comment quality**: Do comments set clear behavioural expectations and provide useful context for the LLM?
-- **Redundancy**: Are prompts repeating information already declared in variables?
+llm_friendliness_criteria = [
+  "Clarity: Would an LLM immediately understand the task from the prompts?",
+  "Structure: Are related data grouped via embedded formats? Are branching paths explicit?",
+  "Comment quality: Do comments set clear behavioural expectations and provide useful context for the LLM?",
+  "Redundancy: Are prompts repeating information already declared in variables?"
+]
+
+for criterion in llm_friendliness_criteria:
+    rate source against criterion
 
 #### Step 5: Report findings
 
@@ -281,26 +305,28 @@ Explain what a codify source instructs the LLM to do.
 
 Convert a task description into structured codify constructs. Output the codify syntax as text — no file required.
 
-1. **Parse the task** — Identify:
-   - The core question or goal (→ becomes one or more prompts)
-   - Data/context provided (→ becomes declarations or embedded formats)
-   - Conditions or branching logic (→ becomes control flow)
-   - Repetitive elements (→ becomes loops)
-   - Reusable sub-tasks (→ becomes functions)
-   - Behavioural instructions for the LLM (→ use comments)
+fn nl_to_codify(task: text) {
+    1. parse task — identify:
+       core question or goal → becomes one or more prompts
+       data/context provided → becomes declarations or embedded formats
+       conditions or branching logic → becomes control flow
+       repetitive elements → becomes loops
+       reusable sub-tasks → becomes functions
+       behavioural instructions for LLM → use comments
 
-2. **Structure the output** following the conventional order (declarations → embedded data → functions → prompts → control flow).
+    2. structure output following conventional order (declarations → embedded data → functions → prompts → control flow)
 
-3. **Choose declaration style** based on readability:
-   - Use `=` for programmatic values
-   - Use `is` for natural-language-like statements
-   - Use `as` for roles or identity mappings
+    3. choose declaration style based on readability:
+       use = for programmatic values
+       use is for natural-language-like statements
+       use as for roles or identity mappings
 
-4. **Choose control flow style** based on complexity:
-   - Use block style (colon + indent) for 2+ branches or nested conditions
-   - Use inline style (`?` and `;`) for simple binary conditions
+    4. choose control flow style based on complexity:
+       use block style (colon + indent) for 2+ branches or nested conditions
+       use inline style (? and ;) for simple binary conditions
 
-5. **Verify round-trip clarity** — the codify output should be understandable by an LLM without additional context.
+    5. verify round-trip clarity — codify output should be understandable by LLM without additional context
+}
 
 ---
 
@@ -391,14 +417,13 @@ not number % 2 == 0? respond with "odd";
 
 ## Edge Cases & Gotchas
 
-| Situation | Guidance |
-|-----------|----------|
-| **`https://` mistaken for comment** | Avoid writing `//` mid-word to prevent LLM misinterpretation. |
-| **Unclosed `/*` at EOF** | Always close multi-line comments. |
-| **Nested comments** | `/* /* */ */` is not supported — the first `*/` closes the entire comment. Avoid nesting `/* */` inside `/* */`. |
-| **Whitespace in variable names** | Variable names must be single tokens (no spaces). Use `snake_case` or `camelCase`. |
-| **Inline control flow chaining** | Long inline chains can confuse the LLM. Prefer block style for 3+ branches. |
-| **Type annotations ≠ validation** | Types like `: yaml` or `: adult` are purely semantic labels for the LLM. |
-| **Reassignment** | codify allows reassignment (`x = 10` then later `x = 20`), but this can confuse the LLM. Flag reassignment during review — suggest unique variable names. |
-| **Mixed indentation** | Block-structured constructs require consistent indentation. Mixing tabs and spaces degrades LLM parsing. |
-| **Functions as prompt templates** | Functions are not executable code — they are reusable descriptions of behaviour. |
+edge_cases: yaml =
+  https_comment: "Avoid writing // mid-word to prevent LLM misinterpretation."
+  unclosed_block: "Always close multi-line comments."
+  nested_comments: "/* /* */ */ is not supported — the first */ closes the entire comment. Avoid nesting /* */ inside /* */."
+  whitespace_names: "Variable names must be single tokens (no spaces). Use snake_case or camelCase."
+  inline_chaining: "Long inline chains can confuse the LLM. Prefer block style for 3+ branches."
+  annotations_not_validation: "Types like :yaml or :adult are purely semantic labels for the LLM."
+  reassignment: "codify allows reassignment (x = 10 then later x = 20), but this can confuse the LLM. Flag reassignment during review — suggest unique variable names."
+  mixed_indentation: "Block-structured constructs require consistent indentation. Mixing tabs and spaces degrades LLM parsing."
+  functions_as_templates: "Functions are not executable code — they are reusable descriptions of behaviour."
