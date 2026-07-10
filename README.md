@@ -48,7 +48,7 @@ Requires Python 3.10+.
 
 ## Usage
 
-### `codify strip` — Strip comments from `.pseudo` files
+### `codify strip` — Strip comments from codify source files
 
 Removes `//` and `/* */` comments while preserving `@` hints (which survive preprocessing as meta-instructions to the LLM).
 
@@ -60,6 +60,12 @@ Read from stdin:
 
 ```bash
 cat example.pseudo | codify strip
+```
+
+Write stripped output to a `.md` file:
+
+```bash
+codify strip example.pseudo -o output.md
 ```
 
 **Before** (`example.pseudo`):
@@ -80,6 +86,8 @@ how much is x?
 x = 10
 how much is x?
 ```
+
+With `-o output.md`, the same output is written to `output.md` instead of stdout.
 
 ### `python -m codify`
 

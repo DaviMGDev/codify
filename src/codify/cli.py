@@ -1,4 +1,4 @@
-"""codify strip — strip // and /* */ comments from .pseudo files."""
+"""codify strip — strip // and /* */ comments from codify source files."""
 
 import argparse
 import sys
@@ -106,7 +106,14 @@ def run_strip(args: argparse.Namespace) -> None:
         print(f"error: {exc}", file=sys.stderr)
         sys.exit(1)
 
-    sys.stdout.write(result)
+    if args.output:
+        try:
+            Path(args.output).write_text(result, encoding="utf-8")
+        except OSError as exc:
+            print(f"error: cannot write to {args.output}: {exc}", file=sys.stderr)
+            sys.exit(1)
+    else:
+        sys.stdout.write(result)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -117,12 +124,18 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    strip_parser = sub.add_parser("strip", help="Strip comments from a .pseudo file")
+    strip_parser = sub.add_parser("strip", help="Strip comments from a codify source file")
     strip_parser.add_argument(
         "file",
         nargs="?",
         default="-",
         help="Path to .pseudo file (default: stdin)",
+    )
+    strip_parser.add_argument(
+        "-o",
+        "--output",
+        help="Write output to FILE instead of stdout (e.g., .md)",
+        metavar="FILE",
     )
     strip_parser.set_defaults(func=run_strip)
 
