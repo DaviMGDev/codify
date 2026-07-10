@@ -2,11 +2,11 @@
 
 ## 1. Philosophy
 
-Pseudo is a prompt-centric DSL designed to be interpreted — and even written — by LLMs.
+codify is a prompt-centric DSL designed to be interpreted — and even written — by LLMs.
 
 The language is intentionally loose. It is not a strict language, just a set of conventions that define better agent behaviour.
 
-Pseudo is not intended for compilers, static analysis, or formal type checking. There is no LSP, no linter, and no type checker. The language exists to provide just enough structure for dynamic, LLM-driven workflows while staying flexible enough that an LLM can produce valid code without friction.
+codify is not intended for compilers, static analysis, or formal type checking. There is no LSP, no linter, and no type checker. The language exists to provide just enough structure for dynamic, LLM-driven workflows while staying flexible enough that an LLM can produce valid code without friction.
 
 The conventions exist to:
 
@@ -42,12 +42,50 @@ Comments may appear anywhere in a file. They are removed during preprocessing, b
 
 ---
 
+## 2.5. Hints
+
+Hints are comments that **survive** preprocessing. They are stripped of their hint markers but kept in the output — unlike regular comments (`//`, `/* */`) which are removed entirely. Hints serve as meta-instructions to the LLM that shape behaviour without being part of the prompt's natural language.
+
+### Single-line hint
+
+```txt
+@ give me a concise answer
+```
+
+The `@` prefix marks a single-line hint. The preprocessor strips the `@` and keeps the text.
+
+### Multi-line hint
+
+```txt
+@*
+this hint spans
+multiple lines
+*@
+```
+
+The `@*` and `*@` delimiters mark a multi-line hint. The preprocessor strips the markers and keeps the inner text.
+
+### Placement
+
+Hints may appear anywhere in a file. They are collected and emitted as a block at the top of the preprocessed output (or kept in-place — the behaviour is tool-defined).
+
+### Relationship to comments
+
+```txt
+// this is stripped entirely — the LLM never sees it
+@ this is kept — the LLM sees "give me a concise answer"
+```
+
+Hints are the inverse of comments: comments are for humans, stripped for the LLM; hints are for the LLM, stripped of their syntax but kept as content.
+
+---
+
 ## 3. Prompts
 
 Any text that does not match a language construct (comment, declaration, control flow, loop, function) is interpreted as a **prompt** — natural language sent directly to the LLM.
 obs: ANY TEXT that is not a comment, **IS** a prompt, there are no distinction between pseudocode and natural language. none. zero. the usage of constructs are just convetional, not enforced 
 
-This is the core idea of Pseudo: code is structured prompts.
+This is the core idea of codify: code is structured prompts.
 
 ```txt
 hi, give me a poem
@@ -141,7 +179,7 @@ data: yaml =
 
 ## 6. Embedded Formats
 
-Pseudo accepts inline data in common formats. The format is specified via a type annotation.
+codify accepts inline data in common formats. The format is specified via a type annotation.
 
 ### YAML
 
@@ -300,14 +338,14 @@ Functions are not compiled or type-checked. They serve as reusable prompt templa
 
 ## 11. Tooling
 
-The following tools are planned for the Pseudo language.
+The following tools are planned for codify.
 
 ### Preprocessor
 
 Strips comments producing a clean Markdown file ready for LLM consumption.
 
 ```
-pseudo preprocess main.pseudo > output.md
+codify preprocess main.pseudo > output.md
 ```
 
 ### Formatter
@@ -320,18 +358,18 @@ A TextMate grammar or Tree-sitter parser for editor integration (VS Code, Neovim
 
 ### LLM skills
 
-Skills designed to help LLMs interact with the Pseudo language:
+Skills designed to help LLMs interact with codify:
 
-* **Write** — convert natural-language task descriptions into Pseudo code
-* **Review** — check Pseudo code for clarity, correctness, and completeness
-* **Understand** — explain what a given Pseudo file instructs
-* **Convert** — translate between Pseudo and natural language in either direction
+* **Write** — convert natural-language task descriptions into codify code
+* **Review** — check codify code for clarity, correctness, and completeness
+* **Understand** — explain what a given codify file instructs
+* **Convert** — translate between codify and natural language in either direction
 
 ---
 
 ## 12. Object notation
 
-"Objects" and "classes" in Pseudo are simply JSON notation.
+"Objects" and "classes" in codify are simply JSON notation.
 
 ```txt
 me = {
