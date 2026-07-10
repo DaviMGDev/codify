@@ -69,7 +69,7 @@ Determine what the codify content should accomplish. Ask the user if unclear:
 - Should the output be structured? (control flow branching, loops over items)
 - Are there behavioural instructions for the LLM? (use comments for these)
 
-#### Step 3: Structure the content
+#### Step 2: Structure the content
 
 Organise the content top-to-bottom in this conventional order:
 
@@ -81,7 +81,7 @@ Organise the content top-to-bottom in this conventional order:
 
 This order is a convention, not a rule — any construct can appear anywhere.
 
-#### Step 4: Use correct construct syntax
+#### Step 3: Use correct construct syntax
 
 Follow the syntax rules from `references/LANGUAGE.md`:
 
@@ -176,7 +176,7 @@ fruits = [apple, banana, cherry]
    the export workflow */
 ```
 
-#### Step 5: Place prompts as bare text
+#### Step 4: Place prompts as bare text
 
 Any line that isn't one of the above constructs is a prompt — natural language sent directly to the LLM:
 
@@ -188,7 +188,7 @@ based on the data above, generate a summary
 
 Prompts can reference variables declared earlier. The LLM resolves them in context.
 
-#### Step 6: Verify the content
+#### Step 5: Verify the content
 
 - Read the content back and confirm every construct follows the syntax above
 - Check that comments use `//` or `/* */` syntax consistently
@@ -300,7 +300,7 @@ Convert a task description into structured codify constructs. Output the codify 
    - Use block style (colon + indent) for 2+ branches or nested conditions
    - Use inline style (`?` and `;`) for simple binary conditions
 
-6. **Verify round-trip clarity** — the codify output should be understandable by an LLM without additional context.
+5. **Verify round-trip clarity** — the codify output should be understandable by an LLM without additional context.
 
 ---
 
