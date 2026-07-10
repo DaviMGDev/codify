@@ -15,70 +15,32 @@ The conventions exist to:
 * make the language easy to write, both by humans and LLMs
 * support embedded formats (JSON, YAML, TOML, Markdown) natively
 
-A formatter and a preprocessor (comments → stripped, output → Markdown) are planned. A full toolchain is not.
+A full toolchain is not planned.
 
 ---
 
 ## 2. Comments
 
-Comments exist for human readers. They are **never** seen by the LLM — the preprocessor strips them before the prompt reaches the model.
+Comments provide context and meta-instructions for the LLM. Since codify has no preprocessor, all text — including comments — reaches the LLM. The LLM should treat commented text as context, guidance, and behavioural hints that shape its responses. Comments are not executable prompts.
 
 ### Single-line comments
 
 ```txt
-// this is a comment
+// respond in Portuguese
+// the user prefers short answers
+// this value was chosen based on the 2023 benchmark
 ```
 
 ### Multi-line comments
 
 ```txt
 /*
-this is a comment that
-spans multiple lines
+tell the user when a step is complete.
+use emojis to indicate status.
 */
 ```
 
-Comments may appear anywhere in a file. They are removed during preprocessing, before the remaining content is sent to the LLM.
-
----
-
-## 2.5. Hints
-
-Hints are comments that **survive** preprocessing. They are stripped of their hint markers but kept in the output — unlike regular comments (`//`, `/* */`) which are removed entirely. Hints serve as meta-instructions to the LLM that shape behaviour without being part of the prompt's natural language.
-
-### Single-line hint
-
-```txt
-@ give me a concise answer
-```
-
-The `@` prefix marks a single-line hint. The preprocessor strips the `@` and keeps the text.
-
-### Multi-line hint
-
-```txt
-@*
-this hint spans
-multiple lines
-*@
-```
-
-The `@*` and `*@` delimiters mark a multi-line hint. The preprocessor strips the markers and keeps the inner text.
-
-### Placement
-
-Hints may appear anywhere in a file. They are collected and emitted as a block at the top of the preprocessed output (or kept in-place — the behaviour is tool-defined).
-
-### Relationship to comments
-
-```txt
-// this is stripped entirely — the LLM never sees it
-@ this is kept — the LLM sees "give me a concise answer"
-```
-
-Hints are the inverse of comments: comments are for humans, stripped for the LLM; hints are for the LLM, stripped of their syntax but kept as content.
-
----
+Comments may appear anywhere in a file.
 
 ## 3. Prompts
 
@@ -339,14 +301,6 @@ Functions are not compiled or type-checked. They serve as reusable prompt templa
 ## 11. Tooling
 
 The following tools are planned for codify.
-
-### Preprocessor
-
-Strips comments producing a clean Markdown file ready for LLM consumption.
-
-```
-codify preprocess main.pseudo > output.md
-```
 
 ### Formatter
 
