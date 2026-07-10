@@ -4,8 +4,7 @@ description: >-
   Write, review, and convert codify — a prompt-centric syntax system for
   LLM-driven workflows. Use when the user wants to structure prompts using
   codify conventions (variables, control flow, functions, embedded formats,
-  hints). Supports fileless inline usage and file-based workflows via the
-  codify CLI tool.
+  hints). Supports fileless inline usage and file-based workflows.
 ---
 
 # Codify
