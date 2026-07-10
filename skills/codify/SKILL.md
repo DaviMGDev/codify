@@ -1,33 +1,36 @@
 ---
 name: codify
 description: >-
-  Write `.pseudo` files in the codify prompt-centric DSL, review existing
-  codify code for correctness and clarity, and bidirectionally convert between
-  codify pseudocode and natural language. Use when the user wants to create,
-  audit, or translate codify language files for LLM-driven workflows.
+  Write, review, and convert codify — a prompt-centric syntax system for
+  LLM-driven workflows. Use when the user wants to structure prompts using
+  codify conventions (variables, control flow, functions, embedded formats,
+  hints). Supports fileless inline usage and file-based workflows via the
+  codify CLI tool.
 ---
 
 # Codify
 
-A unified skill for the **codify** language — a prompt-centric DSL designed to be interpreted and written by LLMs. Codify provides just enough structure (variables, control flow, functions, hints, embedded formats) while keeping everything as prompt text the LLM interprets naturally.
+A unified skill for the **codify** language — a prompt-centric syntax designed to be interpreted and written by LLMs. Codify provides just enough structure (variables, control flow, functions, hints, embedded formats) while keeping everything as prompt text the LLM interprets naturally.
+
+Codify is a **syntax and convention system**, not a file format. Source files are conventionally stored as `.pseudo` and preprocessed into `.md` via the `codify strip -o` tool, but the skill works perfectly without any file at all — the syntax can be used directly in any prompt.
 
 The skill has three operational modes:
 
 | Mode | Function |
 |------|----------|
-| **write** | Author or modify `.pseudo` files |
-| **review** | Audit `.pseudo` files for spec compliance and clarity |
-| **convert** | Translate between natural language and codify (bidirectional) |
+| **write** | Author structured prompts using codify syntax; output as text inline, as `.md`, or via `codify strip -o` |
+| **review** | Audit codify source (`.pseudo` or `.md`) for spec compliance, clarity, and LLM-friendliness |
+| **convert** | Translate between natural language and codify syntax — no file required |
 
 ---
 
 ## When to use
 
-- The user says: "write a codify file", "create a .pseudo file", "help me write a prompt in codify"
-- The user says: "review this .pseudo file", "check this codify code", "is this valid codify?"
-- The user says: "convert this prompt to codify", "explain this .pseudo file in plain English", "translate this codify to natural language"
+- The user says: "write a codify prompt", "help me structure this task in codify", "create a codify workflow"
+- The user says: "review this codify code", "check this .pseudo file", "is this valid codify?"
+- The user says: "convert this prompt to codify", "explain this codify file in plain English", "translate this codify to natural language"
 - The user shares a task description and wants it structured as codify constructs
-- The user shares a `.pseudo` file and wants it audited for correctness, ambiguities, or LLM-friendliness
+- The user shares a `.pseudo` or `.md` file and wants it audited for correctness, ambiguities, or LLM-friendliness
 
 ---
 
@@ -44,31 +47,43 @@ Before using this skill, read these resource files bundled inside the skill dire
 
 - **No compiler, no parser, no linter** — codify is a set of conventions, not enforced rules. Output is sent as one prompt to an LLM.
 - **Everything is a prompt** — any text that isn't a comment, declaration, control flow construct, function, or embedded format is natural language sent to the LLM.
+- **Fileless by default** — codify syntax can be used directly in any prompt without creating any file. When a file is needed, use `codify strip source.pseudo -o source.md` to preprocess.
 - **Comments vs Hints**: `//` and `/* */` are stripped by the preprocessor (invisible to the LLM); `@` and `@*...*@` hints survive preprocessing as LLM meta-instructions.
-- **File extension**: `.pseudo`
+- **Source extension**: `.pseudo` (conventional, not enforced)
+- **Output extension**: `.md` (via `codify strip -o`)
 - **No strict types** — type annotations like `: adult` or `: yaml` are semantic labels for the LLM, not enforced by any runtime.
 - **Embedded formats** (YAML, TOML, JSON, XML, Markdown) are passed as-is to the LLM — the format annotation tells the LLM how to interpret the block.
+- **CLI tool**: `codify strip` strips comments from a `.pseudo` source and prints clean text; with `-o FILE` it saves to that file instead of stdout.
 - **Python 3.10+**, zero runtime dependencies, build system is Hatchling.
 
 ---
 
 ## Instructions
 
-### Mode 1: Write Pseudocode
+### Mode 1: Write Codify Syntax
 
-Use this when the user asks to create or edit a `.pseudo` file from scratch.
+Use this when the user asks to create structured prompts using codify conventions. The output can be delivered as text directly (fileless) or as a `.md` file (via `codify strip -o`).
 
-#### Step 1: Identify the task scope
+#### Step 1: Determine delivery mode
 
-Determine what the `.pseudo` file should accomplish. Ask the user if unclear:
+Choose based on what the user needs:
+
+- **Fileless (default)**: The user wants codify-structured prompts for use in a chat session, as a skill definition, or as part of a larger prompt. Convey the codify syntax directly in the response — no file created.
+- **File-based**: The user wants a reusable file they can pass to an LLM later. Save codify source as `.pseudo`, then run `codify strip source.pseudo -o source.md` and deliver the `.md`.
+
+Ask the user if unclear: "Do you want codify syntax as inline text, or as a `.md` file?"
+
+#### Step 2: Identify the task scope
+
+Determine what the codify content should accomplish. Ask the user if unclear:
 - What is the single goal or question the LLM should answer?
 - What data/context does the LLM need? (variables, embedded configs, lists)
 - Should the output be structured? (control flow branching, loops over items)
 - Are there behavioural instructions for the LLM? (use `@` hints for these)
 
-#### Step 2: Structure the file
+#### Step 3: Structure the content
 
-Organise the file top-to-bottom in this conventional order:
+Organise the content top-to-bottom in this conventional order:
 
 1. **Hints** (`@`) — Behavioral meta-instructions for the LLM (placed at top or inline)
 2. **Declarations** — Variables, constants, data using `=`, `is`, or `as` style
@@ -79,7 +94,7 @@ Organise the file top-to-bottom in this conventional order:
 
 This order is a convention, not a rule — any construct can appear anywhere.
 
-#### Step 3: Use correct construct syntax
+#### Step 4: Use correct construct syntax
 
 Follow the syntax rules from `references/LANGUAGE.md`:
 
@@ -182,7 +197,7 @@ multiple lines
 *@
 ```
 
-#### Step 4: Place prompts as bare text
+#### Step 5: Place prompts as bare text
 
 Any line that isn't one of the above constructs is a prompt — natural language sent directly to the LLM:
 
@@ -194,9 +209,17 @@ based on the data above, generate a summary
 
 Prompts can reference variables declared earlier. The LLM resolves them in context.
 
-#### Step 5: Verify the file
+#### Step 6 (file-based only): Preprocess to .md
 
-- Read the file back and confirm every construct follows the syntax above
+When the user wants a file:
+1. Save the codify source as `<name>.pseudo`
+2. Run `codify strip <name>.pseudo -o <name>.md`
+3. Present the `.md` as the deliverable.
+   The intermediate `.pseudo` source can be discarded.
+
+#### Step 7: Verify the content
+
+- Read the content back and confirm every construct follows the syntax above
 - Check that comments (`//`, `/* */`) are clearly distinguishable from hints (`@`, `@*...*@`)
 - Check that embedded format annotations match the format of the content (e.g., `: yaml =` should precede YAML, not JSON)
 - Check that control flow bodies are consistently indented (spaces or tabs, but not mixed)
@@ -204,13 +227,13 @@ Prompts can reference variables declared earlier. The LLM resolves them in conte
 
 ---
 
-### Mode 2: Review Pseudocode
+### Mode 2: Review Codify Source
 
-Use this when the user provides a `.pseudo` file or codify snippet for audit.
+Use this when the user provides a codify snippet, `.pseudo` file, or `.md` file for audit.
 
-#### Step 1: Read the file
+#### Step 1: Read the source
 
-Read the full content of the `.pseudo` file.
+Read the full content. For `.md` files, state the assumption that they originated from a codify source and check for embedded codify constructs (declarations, control flow, hints, etc.).
 
 #### Step 2: Check construct syntax
 
@@ -242,7 +265,7 @@ Look for constructs that could confuse an LLM:
 
 #### Step 4: Assess LLM-friendliness
 
-Rate the file on these criteria:
+Rate the content on these criteria:
 - **Clarity**: Would an LLM immediately understand the task from the prompts?
 - **Structure**: Are related data grouped via embedded formats? Are branching paths explicit?
 - **Hint quality**: Do `@` hints set clear behavioural expectations for the LLM?
@@ -253,7 +276,7 @@ Rate the file on these criteria:
 Present the review as a structured report:
 
 ```markdown
-## Review: `<filename>.pseudo`
+## Review: `<filename>`
 
 ### ✅ Pass
 - [list of correctly used constructs]
@@ -266,18 +289,18 @@ Present the review as a structured report:
 
 ---
 
-### Mode 3: Convert Pseudocode ↔ Natural Language
+### Mode 3: Convert Codify ↔ Natural Language
 
-Use this when the user wants to translate between formats in either direction.
+Use this when the user wants to translate between formats in either direction. No file is required at any step — codify syntax is text.
 
 #### Direction A: Codify → Natural Language
 
-Explain what a `.pseudo` file instructs the LLM to do.
+Explain what a codify source instructs the LLM to do.
 
-1. **Read the full file**.
+1. **Read the full source** (`.pseudo`, `.md`, or inline snippet).
 2. **Identify all constructs** — declarations, hints, embedded data, functions, control flow, loops.
 3. **Trace the prompt sequence** — read the natural-language prompts in order, resolving variable references where they appear.
-4. **Summarise the intent**: "This codify file asks the LLM to [goal]. It provides [data] and instructs the LLM to [actions]."
+4. **Summarise the intent**: "This codify source asks the LLM to [goal]. It provides [data] and instructs the LLM to [actions]."
 5. **Map constructs to plain English**:
    - Variables → "It defines X as Y"
    - Hints → "The LLM is instructed to [behaviour]"
@@ -288,7 +311,7 @@ Explain what a `.pseudo` file instructs the LLM to do.
 
 #### Direction B: Natural Language → Codify
 
-Convert a task description into structured codify constructs.
+Convert a task description into structured codify constructs. Output the codify syntax as text — no file required.
 
 1. **Parse the task** — Identify:
    - The core question or goal (→ becomes one or more prompts)
@@ -309,19 +332,19 @@ Convert a task description into structured codify constructs.
    - Use block style (colon + indent) for 2+ branches or nested conditions
    - Use inline style (`?` and `;`) for simple binary conditions
 
-5. **Place behavioural instructions as `@` hints** at the top of the file.
+5. **Place behavioural instructions as `@` hints** at the top.
 
-6. **Verify round-trip clarity** — the codify output should be understandable by an LLM without additional context beyond the file itself.
+6. **Verify round-trip clarity** — the codify output should be understandable by an LLM without additional context.
 
 ---
 
 ## Examples
 
-### Write — Creating a `.pseudo` file
+### Write — Fileless (inline syntax)
 
-**User request:** "Create a codify file that asks the LLM to analyse a list of products and recommend the best one based on price and rating."
+**User request:** "Create a codify prompt that asks the LLM to analyse a list of products and recommend the best one based on price and rating."
 
-**Output (`products.pseudo`):**
+**Output (inline — no file created):**
 ```
 @ be concise and justify each recommendation with data
 
@@ -345,7 +368,16 @@ for product in products:
 which products meet the threshold? recommend the best value option and explain why.
 ```
 
-### Review — Auditing a `.pseudo` file
+### Write — File-based (with codify strip -o)
+
+**User request:** "Make a codify workflow file for analysing sample data."
+
+**Process:**
+1. Draft the codify source as `analysis.pseudo`
+2. Run `codify strip analysis.pseudo -o analysis.md`
+3. Deliver `analysis.md`
+
+### Review — Auditing a codify snippet
 
 **User request:** "Check this codify snippet."
 
@@ -372,7 +404,7 @@ how much is x?
 
 ### Convert — Codify → Natural Language
 
-**Input (`greet.pseudo`):**
+**Input:**
 ```
 @ respond in a friendly tone
 
@@ -383,13 +415,13 @@ greet name and acknowledge role
 ```
 
 **Output:**
-> This codify file asks the LLM to greet someone named Alice and acknowledge that they are an engineer. It sets an `@` hint telling the LLM to use a friendly tone. A variable `name` is defined as "Alice" and `role` is defined as "engineer" using the `is` style. The prompt asks the LLM to greet the person by name and acknowledge their role.
+> This codify source asks the LLM to greet someone named Alice and acknowledge that they are an engineer. It sets an `@` hint telling the LLM to use a friendly tone. A variable `name` is defined as "Alice" and `role` is defined as "engineer" using the `is` style. The prompt asks the LLM to greet the person by name and acknowledge their role.
 
 ### Convert — Natural Language → Codify
 
 **User request:** "I want the LLM to check if a number is even or odd and respond accordingly."
 
-**Output:**
+**Output (inline — no file):**
 ```
 @ respond with just "even" or "odd", no extra text
 
@@ -415,3 +447,4 @@ not number % 2 == 0? respond with "odd";
 | **Reassignment** | codify allows reassignment (`x = 10` then later `x = 20`), but this can confuse the LLM. Flag reassignment during review — suggest unique variable names. |
 | **Mixed indentation** | Block-structured constructs (control flow, loops, functions) require consistent indentation. Mixing tabs and spaces degrades LLM parsing. |
 | **Functions as prompt templates** | Functions are not executable code — they are reusable descriptions of behaviour. Do not expect them to be called with concrete arguments like a real function. |
+| **Fileless vs file-based** | When the user just wants codify syntax, deliver it as text inline. Only use a `.pseudo` source with `codify strip -o` when the user explicitly asks for a reusable file. |
