@@ -1,43 +1,92 @@
 # codify
 
-**codify** is a prompt-centric DSL designed to be interpreted — and even written — by LLMs.
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-0.1.0-lightgrey)](LANGUAGE.md)
+[![Status](https://img.shields.io/badge/status-draft-orange)]()
 
-The language is intentionally loose: a set of conventions that define better agent behavior without enforcing strict rules. Any text that isn't a language construct is a prompt. Variables, control flow, functions, and embedded formats (JSON, YAML, TOML, Markdown) provide just enough structure for dynamic, LLM-driven workflows while staying flexible enough that an LLM can produce valid code without friction.
-
-```
-x = 10
-how much is x?
-```
+**codify** is a prompt-centric syntax system designed to be interpreted — and even written — by LLMs. Variables, control flow, functions, and embedded formats (YAML, JSON, TOML, Markdown) provide just enough structure for dynamic LLM-driven workflows, while staying loose enough that an LLM can produce valid codify without friction.
 
 ```txt
-fn summarize(text: text) {
-    summarize the following in 3 bullet points
-}
+// answer each prompt in one sentence
+
+name = "codify"
+audience is developers and LLMs
+version is 0.1.0
+
+introduce name and state who it helps
+
+tasks: yaml =
+    parse: extract structured data from a log file
+    summarize: write a 3-bullet summary of a PR
+
+for task_name in tasks:
+    estimate how long the task task_name should take
+
+version is draft?
+    what should stabilize before 0.2?
 ```
 
-### Philosophy
+## Why codify?
 
-- No compiler, no LSP, no linter, no type checker
-- Conventions, not rules — recommendations, not enforcement
-- The entire file is **one prompt** sent to an LLM
-- The LLM interprets structure from context
+| Problem | codify's answer |
+|---------|-----------------|
+| **Prompts get messy.** One-off instructions, copied context, version drift. | Variables and embedded data keep inputs in one place. Change a value once, the whole file updates. |
+| **LLMs need structure.** A wall of text gets inconsistent results. | Control flow (`if` / `for`) and functions make branching and repetition explicit so the LLM follows the intended path. |
+| **Reuse is hard.** Every prompt is a one-off; nothing is composable. | Functions act as reusable prompt templates. Declare once, call anywhere in the file. |
 
-## Language Specification
+**When NOT to use codify:** your prompt is a single sentence, you need actual executable code, or you need strict validation (codify has no type checker).
 
-See [`LANGUAGE.md`](LANGUAGE.md) for the full language draft — declarations, control flow, loops, functions, embedded formats (YAML, JSON, TOML, XML, Markdown), and the `@` hint system.
+## Getting started
 
-## Example
+1. **Write a `.md` file** using the conventions above — declarations, control flow, prompts.
+2. **Paste the entire file** into any LLM (ChatGPT, Claude, pi, etc.).
+3. **Done.** No install, no build step, no preprocessor.
 
-[`example.md`](example.md) demonstrates every codify construct in one file.
+See [`example.md`](example.md) for every construct in one file, or jump to [`LANGUAGE.md`](LANGUAGE.md) for the full spec.
 
-## Project Status
+## Language
+
+codify is a set of conventions, not enforced rules. Any text that isn't a recognized construct is a natural-language **prompt** sent directly to the LLM.
+
+| Construct | Syntax |
+|-----------|--------|
+| Comments | `//` single-line, `/* */` multi-line — read by the LLM as context and guidance |
+| Declarations | `x = 10`, `pi is 3.14`, `me as user` — three equivalent styles |
+| Type annotations | `person: adult = {...}`, `data: yaml = ...` — semantic labels, not enforced |
+| Embedded formats | `: yaml =`, `: json =`, `: toml =`, `: xml =`, `: md =` — interpreted by the LLM |
+| Control flow | `if condition:` (block) or `condition? action;` (inline) |
+| Loops | `for item in iterator:` — iteration over lists, ranges, or natural-language descriptions |
+| Functions | `fn name(args): type { ... }` or `def name(args) -> type:` — reusable prompt templates |
+| Objects | `{ key: value }` — JSON-like, unquoted keys allowed |
+| Lists | `[1, 2, 3]` |
+
+Full specification: [`LANGUAGE.md`](LANGUAGE.md)
+
+## Pi agent skill
+
+A codify skill for [pi](https://github.com/Earendil-Works/pi-coding-agent) is included in this repo:
+
+**[`skills/codify/SKILL.md`](skills/codify/SKILL.md)** — supports three modes:
+- **Write** — author structured prompts using codify conventions
+- **Review** — audit codify source for spec compliance, clarity, and LLM-friendliness
+- **Convert** — translate between natural language and codify syntax in either direction
+
+To use it, copy or symlink `skills/codify/` into your pi skills directory.
+
+## Project status
 
 | Area | Status |
 |------|--------|
-| Language spec | Draft — stable conventions defined in `LANGUAGE.md` |
+| Language spec | Draft — conventions defined in [`LANGUAGE.md`](LANGUAGE.md) |
+| LLM skill (write, review, convert) | ✅ Implemented — [`skills/codify/SKILL.md`](skills/codify/SKILL.md) |
 | Formatter | Planned |
 | Syntax highlighting (TextMate / Tree-sitter) | Planned |
-| LLM skills (write, review, convert) | Planned |
+
+## Contributing
+
+This is an early-stage solo project. Bug reports, spec proposals, and examples are welcome — open an issue or PR on [GitHub](https://github.com/DaviMGDev/codify).
+
+Before proposing a language change, read [`LANGUAGE.md`](LANGUAGE.md) and the existing [ADRs](docs/adr/) for context on past decisions.
 
 ---
 
