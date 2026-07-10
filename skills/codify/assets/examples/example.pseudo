@@ -1,0 +1,92 @@
+// this comment is stripped by the preprocessor — the LLM never sees it
+
+@ respond to each prompt in order. use the declared variables and data as context.
+
+project_title = "codify"
+target_audience is developers and LLMs
+me as practitioner
+
+pi is 3.14159
+fruits = [apple, banana, cherry, date]
+scores = [95, 87, 73, 91]
+
+repo = {
+    name: codify,
+    status: draft,
+    license: MIT
+}
+
+language_version: semver = 0.1.0
+
+config: yaml =
+    theme: dark
+    font: monospace
+    fontSize: 14
+
+settings: toml =
+    [editor]
+    lineNumbers = true
+    tabSize = 2
+
+user: json =
+    {
+        "role": "developer",
+        "focus": "prompt-centric DSLs"
+    }
+
+data: xml =
+    <items>
+        <item id="1">declarations</item>
+        <item id="2">control flow</item>
+        <item id="3">embedded formats</item>
+    </items>
+
+description: md =
+    # Codify
+
+    A **prompt-centric** DSL designed for **LLM interpretation**.
+
+/*
+  block comments are stripped entirely.
+  the LLM never reads this section.
+*/
+
+introduce project_title and state who target_audience is
+
+if language_version >= 0.1:
+    summarize what changed from version 0.0.1
+else if language_version is draft:
+    describe what is still missing
+else:
+    give a quick status update
+
+version is 0.1? list the main constructs; version is older? describe the evolution;
+
+score >= 90? mark as excellent; score >= 70? mark as good; mark as needs revision;
+
+for fruit in fruits:
+    suggest a one-line recipe using fruit
+
+@ keep each recipe suggestion under 12 words
+
+@*
+for the scores array, calculate the mean
+and flag any score below 80
+*@
+
+fn estimate_time(task: text): hours {
+    based on the task description, return a realistic time estimate in hours
+}
+
+def review_design(file: text) -> text:
+    read file and list three improvement suggestions
+
+estimate_time("build a comment stripper for codify")
+
+review_design("example.pseudo")
+
+me as practitioner? give me one tip for writing better codify files;
+
+/*
+  end of demonstration
+*/
